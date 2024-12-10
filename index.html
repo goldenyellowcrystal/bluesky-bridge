@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Bluesky Bridge</title>
+
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+  </head>
+
+<body>
+  <div id="app" class="text-center">
+    <h2 class="py-4">Bluesky Bridge</h2>
+
+    <div class="card mb-3 mx-auto" @click="openTwitter()" style="max-width: 400px;">
+      <div class="row g-0">
+        <div class="col-md-2 my-auto px-1 py-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-twitter" viewBox="0 0 16 16">
+            <path d="M5.026 15c6.038 0 9.341-5.003 9.341-9.334q.002-.211-.006-.422A6.7 6.7 0 0 0 16 3.542a6.7 6.7 0 0 1-1.889.518 3.3 3.3 0 0 0 1.447-1.817 6.5 6.5 0 0 1-2.087.793A3.286 3.286 0 0 0 7.875 6.03a9.32 9.32 0 0 1-6.767-3.429 3.29 3.29 0 0 0 1.018 4.382A3.3 3.3 0 0 1 .64 6.575v.045a3.29 3.29 0 0 0 2.632 3.218 3.2 3.2 0 0 1-.865.115 3 3 0 0 1-.614-.057 3.28 3.28 0 0 0 3.067 2.277A6.6 6.6 0 0 1 .78 13.58a6 6 0 0 1-.78-.045A9.34 9.34 0 0 0 5.026 15"/>
+          </svg>
+        </div>
+        <div class="col-md-3 my-3">
+          <img width="96" height="96" class="bg-info rounded-circle" :src="currentFollowing.twitter.pic" :alt="currentFollowing.twitter.handle">
+        </div>
+        <div class="col-md-7 my-auto text-start">
+          <div class="card-body">
+            <h5 class="card-title">{{ currentFollowing.twitter.name }}</h5>
+            <p class="card-subtitle text-muted">@{{ currentFollowing.twitter.handle }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-3 mx-auto" @click="openBluesky()" style="max-width: 400px;">
+      <div class="row g-0">
+        <div class="col-md-2 my-auto px-1 py-2">
+          <img src="https://bsky.app/static/favicon-32x32.png" alt="bluesky_icon">
+        </div>
+        <div class="col-md-3 my-3">
+          <img width="96" height="96" class="bg-info rounded-circle" :src="currentFollowing.bluesky.pic" :alt="currentFollowing.bluesky.handle">
+        </div>
+        <div class="col-md-7 my-auto text-start">
+          <div class="card-body">
+            <h5 class="card-title">{{ currentFollowing.bluesky.name }}</h5>
+            <p class="card-subtitle text-muted">@{{ currentFollowing.bluesky.handle }}</p>
+            <p class="card-text"><small class="text-muted">{{ currentFollowing.bluesky.descrip }}</small></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="fs-3">
+      <button class="ms-2" @click="prev()">Prev</button>
+      <button class="ms-2" @click="next()">Next</button>
+    </div>
+    <div class="fs-5">
+      {{ currentPage }}/{{ maxPages }} ({{ percentProgress }}%)
+    </div>
+    <div>
+      <input type="checkbox" id="useApp" value="Y" v-model="useTwitterApp">
+      <label for="useApp">Open Link with Twitter App</label>
+    </div>
+  </div>
+</body>
+
+<script type="module">
+  const BLANK_USER = {
+    twitter: {
+      pic: "",
+      name: "",
+      handle: "",
+      link: "",
+      xLink: ""
+    },
+    bluesky: {
+      pic: "",
+      name: "",
+      handle: "",
+      link: "",
+      descrip: ""
+    }
+  }
+
+  Vue.createApp({
+    data() {
+      return {
+        following: [],
+        counter: 0,
+        useTwitterApp: []
+      }
+    },
+    methods: {
+      openTwitter() {
+        const username = this.currentFollowing.twitter.handle;
+        const link = (this.useTwitterApp.length > 0)
+          ? "https://twitter.app.link/banner_switch_to_app?%24deeplink_path=twitter%3A%2F%2Fuser%3Fscreen_name%3D" + username
+          : "https://twitter.com/"+ username;
+        
+        window.open(link);
+      },
+      openBluesky() {
+        const username = this.currentFollowing.bluesky.handle;
+        const link = "https://bsky.app/profile/" + username;
+        window.open(link);
+      },
+      next() {
+        if (this.counter + 1 <= this.following.length) {
+          this.counter += 1
+          localStorage.setItem('position', this.counter)
+        }
+      },
+      prev() {
+        if (this.counter - 1 >= 0) {
+          this.counter -= 1
+          localStorage.setItem('position', this.counter)
+        }
+      }
+    },
+    mounted() {
+      const lastPosition = parseInt(localStorage.getItem('position'))
+      if (lastPosition) this.counter = lastPosition;
+
+      const url = "https://gist.githubusercontent.com/goldenyellowcrystal/5bc5fe0204bde6e7e29d3fb2289a2173/raw/cf5b5fcae0ef0518de3f41011ff3c3d41e9541d8/bluesky-bridge.json";
+      $.getJSON(url, (data) => {
+        this.following = data
+      })
+    },
+    computed: {
+      currentFollowing() {
+        return (this.following.length == 0) ? BLANK_USER : this.following[this.counter]
+      },
+      currentPage() {
+        return this.counter+1;
+      },
+      maxPages() {
+        return this.following.length+1;
+      },
+      percentProgress() {
+        const decimalPercentage = this.currentPage / this.maxPages;
+        return (decimalPercentage*100).toFixed(2)
+      }
+    }
+  }).mount('#app')
+</script>
+
+</html>
