@@ -63,6 +63,10 @@
       <input type="checkbox" id="useApp" value="Y" v-model="useTwitterApp">
       <label for="useApp">Open Link with Twitter App</label>
     </div>
+    <div>
+      <button class="ms-2" @click="prevTen()">Prev 10</button>
+      <button class="ms-2" @click="nextTen()">Next 10</button>
+    </div>
   </div>
 </body>
 
@@ -115,6 +119,18 @@
       prev() {
         if (this.counter - 1 >= 0) {
           this.counter -= 1
+          localStorage.setItem('position', this.counter)
+        }
+      },
+      nextTen() {
+        if (this.counter + 10 <= this.following.length) {
+          this.counter += 10
+          localStorage.setItem('position', this.counter)
+        }
+      },
+      prevTen() {
+        if (this.counter - 10 >= 0) {
+          this.counter -= 10
           localStorage.setItem('position', this.counter)
         }
       }
